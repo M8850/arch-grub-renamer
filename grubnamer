@@ -1,0 +1,68 @@
+#!/bin/sh
+if [ -z "$1" ]; then
+  echo "No file"
+  exit 2
+fi
+
+
+if [  "$1" == "/boot/grub/grub.cfg"  ]; then
+  grub-mkconfig -o /boot/grub/grub.cfg
+fi
+
+echo
+
+pacman -Q --info linux-zen | grep Versio
+pacman -Q --info linux-lts | grep Versio
+pacman -Q --info linux | grep Versio
+
+echo
+
+linux=$(pacman -Q --info linux | grep Version | sed 's/ //g'| sed 's/Version://')
+linuxzen=$(pacman -Q --info linux-zen | grep Version | sed 's/ //g'| sed 's/Version://')
+linuxlts=$(pacman -Q --info linux-lts | grep Version | sed 's/ //g'| sed 's/Version://'| sed 's/-/.lts-/')
+
+linuxltsreplace=$"Linux linux-lts"
+linuxzenreplace=$"Linux linux-zen"
+linuxreplace=$"Linux linux"
+
+
+
+echo $linuxzen
+echo $linuxlts
+echo $linux
+echo
+echo $linuxzenreplace
+echo $linuxltsreplace
+echo $linuxreplace
+echo
+
+
+#echo ($linux   $linuxreplace)
+#echo ($linuxzen   $linuxzenreplace)
+#echo ($linuxlts   $linuxltsreplace)
+#echo " "
+
+
+echo -n $linuxzenreplace
+echo -n " ----> "
+echo $linuxzen
+echo -n $linuxltsreplace
+echo -n " ----> "
+echo  $linuxlts
+echo -n $linuxreplace 
+echo -n " ----> "
+echo $linux
+echo
+echo $1
+echo
+
+#sed -i 's/Linux linux-lts/Linux-LTS 6.1.50/g' /boot/grub/grub.cfg
+#sed -i 's/Linux linux-zen/Linux-ZEN 6.4.12/g' /boot/grub/grub.cfg
+#sed -i 's/Linux linux/Linux 6.4.12/g' /boot/grub/grub.cfg
+sed -i "s/$linuxltsreplace/$linuxlts/g" $1
+sed -i "s/$linuxzenreplace/$linuxzen/g" $1
+sed -i "s/$linuxreplace/$linux/g" $1
+sed -i "s/with//g" $1
+
+cat $1 | grep Loading | sed 's/echo//g'
+echo
